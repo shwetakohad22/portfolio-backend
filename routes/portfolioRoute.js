@@ -336,6 +336,58 @@ router.post("/delete-skill", async (req, res) => {
   }
 });
 
+// add achievement
+router.post("/add-achievement", async (req, res) => {
+  try {
+    const achievement = new Achievement(req.body);
+    await achievement.save();
+    res.status(200).send({
+      data: achievement,
+      success: true,
+      message: "achievement added successfully",
+    });
+  } catch (error) {
+    res.status(500).send(error);
+    console.log(error);
+  }
+});
+
+//update skills
+router.post("/update-achievement", async (req, res) => {
+  try {
+    const achievement = await Achievement.findOneAndUpdate(
+      { _id: req.body._id },
+      req.body,
+      { new: true }
+    );
+    res.status(200).send({
+      data: achievement,
+      success: true,
+      message: "achievement updated successfully",
+    });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+// delete achievement
+router.post("/delete-achievement", async (req, res) => {
+  try {
+    const achievement = await Achievement.findOneAndDelete(
+      { _id: req.body._id },
+      req.body,
+      { new: true }
+    );
+    res.status(200).send({
+      data: achievement,
+      success: true,
+      message: "achievement deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
 //admin login
 router.post("/admin-login", async (req, res) => {
   try {
@@ -361,6 +413,49 @@ router.post("/admin-login", async (req, res) => {
   }
 });
 
+router.post("/contact", (req, res) => {
+  const data = req.body;
+  if (!data.name || !data.phone || !data.email || !data.message) {
+    return res.json({ msg: "Please fill all the fields!" });
+  }
 
+  const smtpTransporter = nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true, // true for 465, false for other ports
+    auth: {
+      user: "shwetakohad22@gmail.com",
+      pass: "skih pqog ozal akan",
+    },
+  });
+
+  const mailOptions = {
+    from: data.email,
+    to: "shwetakohad22@gmail.com",
+    subject: `Message from ${data.name}`,
+    html: `
+      <h3>Information</h3>
+      <ul>
+        <li>Name: ${data.name}</li>
+        <li>Email: ${data.email}</li>
+        <li>Phone: ${data.phone}</li>
+      </ul>
+      <h3>Message</h3>
+      <p>${data.message}</p>
+    `,
+  };
+
+  smtpTransporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error(error);
+      return res
+        .status(500)
+        .json({ msg: "Failed to send email. Please try again later." });
+    }
+    console.log("Email sent: " + info.response);
+    res.status(200).json({ msg: "Thank you for contacting us." });
+  });
+});
 
 module.exports = router;
