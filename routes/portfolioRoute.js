@@ -19,10 +19,10 @@ router.get("/get-portfolio-data", async (req, res) => {
     const intro = await Intro.find();
     const about = await About.find();
     const skills = await Skills.find();
-    const project = await Project.find();
+    const project = await Project.find().sort({ startDate: -1 });
     const contact = await Contact.find();
-    const education = await Education.find();
-    const experience = await Experience.find();
+    const education = await Education.find().sort({ period: -1 });
+    const experience = await Experience.find().sort({ period: -1 });
     const achievement = await Achievement.find();
 
     res.status(200).send({
